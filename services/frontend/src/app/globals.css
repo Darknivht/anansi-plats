@@ -1,0 +1,326 @@
+@import "tailwindcss";
+
+/* ── Anansi Design Tokens ── */
+
+:root {
+  /* ── Typography ── */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-heading: "DM Sans", system-ui, sans-serif;
+  --font-mono: "DM Mono", "JetBrains Mono", monospace;
+
+  /* ── Font Size Scale ── */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+  --text-7xl: 4.5rem;
+
+  /* ── Spacing Scale ── */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* ── Border Radius ── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-full: 9999px;
+
+  /* ── Container Widths ── */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+
+  /* ── Glass Defaults ── */
+  --glass-bg: rgba(41, 37, 36, 0.6);
+  --glass-elevated-bg: rgba(58, 53, 49, 0.8);
+  --glass-interactive-bg: rgba(41, 37, 36, 0.4);
+  --glass-border: rgba(68, 64, 60, 0.5);
+  --glass-elevated-border: rgba(68, 64, 60, 0.8);
+  --glass-blur: 20px;
+  --glass-blur-elevated: 32px;
+  --glass-blur-interactive: 16px;
+
+  /* ── Glow Effects ── */
+  --glow-amber: 0 0 20px rgba(245, 158, 11, 0.15), inset 0 1px 0 rgba(245, 158, 11, 0.1);
+  --glow-violet: 0 0 20px rgba(139, 92, 246, 0.15), inset 0 1px 0 rgba(139, 92, 246, 0.1);
+  --glow-teal: 0 0 20px rgba(20, 184, 166, 0.15), inset 0 1px 0 rgba(20, 184, 166, 0.1);
+
+  /* ── Shadows ── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
+
+  /* ── Animation Easing ── */
+  --ease-anansi: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── DARK THEME (default — "Night Web") ── */
+.dark {
+  --color-bg-deepest: #0C0A09;
+  --color-bg-surface: #1C1917;
+  --color-surface-elevated: #292524;
+  --color-surface-card: #3A3531;
+  --color-border-subtle: #44403C;
+  --color-text-primary: #FAFAF9;
+  --color-text-secondary: #D6D3D1;
+  --color-text-muted: #A8A29E;
+  --color-text-disabled: #78716C;
+
+  --color-brand-amber: #D97706;
+  --color-brand-amber-light: #F59E0B;
+  --color-brand-ember: #DC2626;
+  --color-brand-ember-light: #F97316;
+  --color-brand-teal: #0F766E;
+  --color-brand-teal-light: #14B8A6;
+  --color-brand-violet: #6D28D9;
+  --color-brand-violet-light: #8B5CF6;
+
+  --color-semantic-success: #16A34A;
+  --color-semantic-success-light: #22C55E;
+  --color-semantic-warning: #D97706;
+  --color-semantic-warning-light: #FBBF24;
+  --color-semantic-error: #DC2626;
+  --color-semantic-error-light: #EF4444;
+  --color-semantic-info: #2563EB;
+  --color-semantic-info-light: #3B82F6;
+}
+
+/* ── LIGHT THEME (optional — "Day Web") ── */
+.light {
+  --color-bg-deepest: #FAFAF9;
+  --color-bg-surface: #F5F5F4;
+  --color-surface-elevated: #E7E5E4;
+  --color-surface-card: #D6D3D1;
+  --color-border-subtle: #D6D3D1;
+  --color-text-primary: #1C1917;
+  --color-text-secondary: #57534E;
+  --color-text-muted: #A8A29E;
+  --color-text-disabled: #A8A29E;
+
+  /* Brand accents same as dark */
+  --color-brand-amber: #D97706;
+  --color-brand-amber-light: #F59E0B;
+  --color-brand-ember: #DC2626;
+  --color-brand-ember-light: #F97316;
+  --color-brand-teal: #0F766E;
+  --color-brand-teal-light: #14B8A6;
+  --color-brand-violet: #6D28D9;
+  --color-brand-violet-light: #8B5CF6;
+
+  --color-semantic-success: #16A34A;
+  --color-semantic-success-light: #22C55E;
+  --color-semantic-warning: #D97706;
+  --color-semantic-warning-light: #FBBF24;
+  --color-semantic-error: #DC2626;
+  --color-semantic-error-light: #EF4444;
+  --color-semantic-info: #2563EB;
+  --color-semantic-info-light: #3B82F6;
+
+  /* Glass adjustments for light theme */
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-elevated-bg: rgba(255, 255, 255, 0.8);
+  --glass-interactive-bg: rgba(255, 255, 255, 0.4);
+  --glass-border: rgba(214, 211, 209, 0.6);
+  --glass-elevated-border: rgba(214, 211, 209, 0.8);
+}
+
+/* ── BASE STYLES ── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  background-color: var(--color-bg-deepest, #0C0A09);
+  color: var(--color-text-primary, #FAFAF9);
+  min-height: 100vh;
+}
+
+/* ── HEADINGS ── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0;
+}
+
+h1 { font-size: var(--text-5xl); letter-spacing: -0.03em; }
+h2 { font-size: var(--text-4xl); letter-spacing: -0.03em; }
+h3 { font-size: var(--text-3xl); }
+h4 { font-size: var(--text-2xl); }
+h5 { font-size: var(--text-xl); }
+h6 { font-size: var(--text-lg); }
+
+/* ── GLASS CARD BASE STYLES ── */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+}
+
+.glass-elevated {
+  background: var(--glass-elevated-bg);
+  backdrop-filter: blur(var(--glass-blur-elevated));
+  -webkit-backdrop-filter: blur(var(--glass-blur-elevated));
+  border: 1px solid var(--glass-elevated-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.glass-interactive {
+  background: var(--glass-interactive-bg);
+  backdrop-filter: blur(var(--glass-blur-interactive));
+  -webkit-backdrop-filter: blur(var(--glass-blur-interactive));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  transition: all 0.2s var(--ease-anansi);
+  cursor: pointer;
+}
+
+.glass-interactive:hover {
+  background: rgba(68, 64, 60, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-color: rgba(245, 158, 11, 0.3);
+  transform: translateY(-2px);
+}
+
+/* ── CUSTOM SCROLLBAR ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(68, 64, 60, 0.6);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 113, 108, 0.8);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(68, 64, 60, 0.6) transparent;
+}
+
+/* ── REDUCED MOTION ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── ANANSI EASING UTILITY ── */
+.ease-anansi {
+  transition-timing-function: var(--ease-anansi);
+}
+
+/* ── GLOW UTILITIES ── */
+.glow-amber {
+  box-shadow: var(--glow-amber);
+}
+
+.glow-violet {
+  box-shadow: var(--glow-violet);
+}
+
+.glow-teal {
+  box-shadow: var(--glow-teal);
+}
+
+/* ── SELECTION ── */
+::selection {
+  background: rgba(245, 158, 11, 0.3);
+  color: var(--color-text-primary);
+}
+
+/* ── FOCUS VISIBLE ── */
+:focus-visible {
+  outline: 2px solid var(--color-brand-amber-light);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── ANIMATED BRAIN PULSE ── */
+@keyframes brain-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.6));
+  }
+}
+
+.animate-brain-pulse {
+  animation: brain-pulse 2s var(--ease-anansi) infinite;
+}
+
+/* ── SKELETON SHIMMER ── */
+@keyframes glass-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-glass-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(41, 37, 36, 0.3) 25%,
+    rgba(68, 64, 60, 0.5) 50%,
+    rgba(41, 37, 36, 0.3) 75%
+  );
+  background-size: 200% 100%;
+  animation: glass-shimmer 1.5s ease-in-out infinite;
+}

@@ -1,0 +1,39 @@
+{
+  "name": "anansi-platform",
+  "version": "2.0.0",
+  "private": true,
+  "description": "🕷️ Anansi — Your AI. Your Life. Your OS. A personal AI operating system and Second Brain.",
+  "workspaces": [
+    "services/frontend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=services/frontend",
+    "build": "npm run build --workspace=services/frontend",
+    "start": "npm run start --workspace=services/frontend",
+    "lint": "npm run lint --workspace=services/frontend",
+    "test": "npm run test --workspace=services/frontend",
+    "typecheck": "npm run typecheck --workspace=services/frontend",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "clean": "rm -rf node_modules services/frontend/node_modules services/frontend/.next",
+    "docker:dev": "docker compose -f infra/docker/docker-compose.yml up --build",
+    "docker:prod": "docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.prod.yml up --build -d"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.0",
+    "prettier-plugin-tailwindcss": "^0.6.0"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anansi-platform/anansi"
+  },
+  "homepage": "https://anansi.ai",
+  "bugs": {
+    "url": "https://github.com/anansi-platform/anansi/issues"
+  },
+  "license": "MIT"
+}

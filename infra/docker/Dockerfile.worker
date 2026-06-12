@@ -1,0 +1,48 @@
+# ──────────────────────────────────────────────
+# Anansi Worker — Production Dockerfile
+# Python 3.13 + Celery
+# ──────────────────────────────────────────────
+
+FROM python:3.13-slim AS builder
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY services/worker/requirements.txt .
+RUN pip install --no-cache-dir --user --upgrade pip && \
+    pip install --no-cache-dir --user -r requirements.txt
+
+# ─── Runtime Stage ───
+
+FROM python:3.13-slim AS runtime
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    ca-certificates \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /root/.local /root/.local
+ENV PATH=/root/.local/bin:$PATH
+
+# Copy shared backend code (models, config, etc.)
+COPY services/backend/app /app/app
+# Copy worker-specific code
+COPY services/worker/tasks /app/tasks
+COPY services/worker/worker.py /app/worker.py
+
+# Health check for Celery worker via flower metrics or simple process check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD celery -A worker inspect ping -d celery@$HOSTNAME || exit 1
+
+RUN useradd -m -u 1000 anansi && chown -R anansi:anansi /app
+USER anansi
+
+# Default concurrency = number of CPU cores
+CMD ["celery", "-A", "worker", "worker", "--loglevel=info", "--concurrency=4", "--max-tasks-per-child=100", "--time-limit=600", "--soft-time-limit=300"]

@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "exactOptionalPropertyTypes": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "verbatimModuleSyntax": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./services/frontend/src/*"],
+      "@anansi/ui/*": ["./services/frontend/src/components/ui/*"],
+      "@anansi/lib/*": ["./services/frontend/src/lib/*"],
+      "@anansi/hooks/*": ["./services/frontend/src/hooks/*"],
+      "@anansi/stores/*": ["./services/frontend/src/stores/*"],
+      "@anansi/types/*": ["./services/frontend/src/types/*"]
+    }
+  },
+  "exclude": ["node_modules", ".next", "out", "dist", "build", "coverage"]
+}

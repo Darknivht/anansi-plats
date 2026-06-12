@@ -1,0 +1,94 @@
+# Anansi Backend — FastAPI + SQLAlchemy + Celery
+# Python 3.13+
+
+# ─── Framework & Server ───
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
+python-multipart==0.0.20
+httptools==0.6.4
+watchfiles==1.0.4
+
+# ─── Database & ORM ───
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+alembic==1.14.0
+pgvector==0.4.0
+psycopg2-binary==2.9.10
+
+# ─── Graph Database ───
+neo4j==5.27.1
+
+# ─── Redis & Caching ───
+redis[hiredis]==5.2.1
+
+# ─── Async HTTP Client ───
+httpx==0.28.1
+aiohttp==3.11.11
+
+# ─── Auth & Security ───
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.1
+python-jwt==4.1.0
+pyotp==2.9.0
+qrcode[pil]==7.4.2
+
+# ─── AI / LLM Integration ───
+openai==1.58.1
+anthropic==0.47.0
+groq==0.14.0
+
+# ─── Task Queue ───
+celery[redis]==5.4.0
+flower==2.0.1
+
+# ─── WebSockets / SSE ───
+sse-starlette==2.2.1
+websockets==14.1
+
+# ─── File / Storage ───
+boto3==1.36.0
+s3fs==2024.12.0
+python-magic==0.4.27
+
+# ─── WhatsApp / Messaging ───
+twilio==9.4.5
+
+# ─── Payments ───
+stripe==11.4.1
+
+# ─── OAuth / AuthLib ───
+authlib==1.4.1
+itsdangerous==2.2.0
+
+# ─── Monitoring & Logging ───
+sentry-sdk[fastapi]==2.20.0
+opentelemetry-api==1.29.0
+opentelemetry-sdk==1.29.0
+opentelemetry-instrumentation-fastapi==0.50b0
+opentelemetry-instrumentation-sqlalchemy==0.50b0
+structlog==24.4.0
+
+# ─── Search ───
+meilisearch==0.34.0
+
+# ─── Email ───
+aiosmtplib==4.0.0
+jinja2==3.1.5
+
+# ─── Data Processing ───
+numpy==2.2.1
+tiktoken==0.8.0
+
+# ─── Schedule / Cron ───
+croniter==6.0.0
+
+# ─── Testing ───
+pytest==8.3.4
+pytest-asyncio==0.25.0
+pytest-cov==6.0.0
+httpx-ws==0.7.1
+factory-boy==3.3.1
+freezegun==1.5.1

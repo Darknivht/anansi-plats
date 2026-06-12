@@ -1,0 +1,50 @@
+# Anansi Worker — Celery Background Tasks
+# Python 3.13+
+
+# ─── Task Queue ───
+celery[redis]==5.4.0
+redis[hiredis]==5.2.1
+
+# ─── Database ───
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+psycopg2-binary==2.9.10
+pgvector==0.4.0
+
+# ─── Graph Database ───
+neo4j==5.27.1
+
+# ─── AI / LLM ───
+openai==1.58.1
+anthropic==0.47.0
+
+# ─── Async HTTP ───
+httpx==0.28.1
+aiohttp==3.11.11
+
+# ─── Integrations ───
+google-api-python-client==2.157.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.1
+boto3==1.36.0
+twilio==9.4.5
+
+# ─── Data Processing ───
+numpy==2.2.1
+tiktoken==0.8.0
+beautifulsoup4==4.12.3
+markdown==3.7.0
+
+# ─── Monitoring ───
+sentry-sdk==2.20.0
+structlog==24.4.0
+
+# ─── Shared with Backend ───
+pydantic==2.10.4
+pydantic-settings==2.7.1
+
+# ─── Testing ───
+pytest==8.3.4
+pytest-asyncio==0.25.0
+pytest-cov==6.0.0
+factory-boy==3.3.1

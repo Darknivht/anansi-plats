@@ -1,0 +1,241 @@
+# ──────────────────────────────────────────────────────────────
+# Anansi Platform — Docker Compose (Development)
+# PostgreSQL 16 + pgvector • Neo4j 5 • Redis 7 • API • Web • Worker
+# ──────────────────────────────────────────────────────────────
+
+x-env: &env
+  # ─── Core ───
+  DATABASE_URL: "postgresql+asyncpg://anansi:${DB_PASSWORD:-anansi_dev_pass}@postgres:5432/anansi"
+  DATABASE_URL_SYNC: "postgresql://anansi:${DB_PASSWORD:-anansi_dev_pass}@postgres:5432/anansi"
+  NEO4J_URI: "bolt://neo4j:7687"
+  NEO4J_USER: "${NEO4J_USER:-neo4j}"
+  NEO4J_PASSWORD: "${NEO4J_PASSWORD:-anansi_graph_dev}"
+  REDIS_URL: "redis://redis:6379/0"
+  SECRET_KEY: "${SECRET_KEY:-dev-secret-key-do-not-use-in-production}"
+
+  # ─── Auth ───
+  JWT_SECRET: "${JWT_SECRET:-dev-jwt-secret}"
+  JWT_ACCESS_EXPIRY: "${JWT_ACCESS_EXPIRY:-900}"
+  JWT_REFRESH_EXPIRY: "${JWT_REFRESH_EXPIRY:-604800}"
+  GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID:-}"
+  GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET:-}"
+  GITHUB_CLIENT_ID: "${GITHUB_CLIENT_ID:-}"
+  GITHUB_CLIENT_SECRET: "${GITHUB_CLIENT_SECRET:-}"
+
+  # ─── AI / LLM ───
+  OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+  ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+  GROQ_API_KEY: "${GROQ_API_KEY:-}"
+  OLLAMA_BASE_URL: "${OLLAMA_BASE_URL:-http://ollama:11434}"
+
+  # ─── WhatsApp ───
+  WHATSAPP_API_TOKEN: "${WHATSAPP_API_TOKEN:-}"
+  WHATSAPP_PHONE_NUMBER_ID: "${WHATSAPP_PHONE_NUMBER_ID:-}"
+  WHATSAPP_WEBHOOK_VERIFY_TOKEN: "${WHATSAPP_WEBHOOK_VERIFY_TOKEN:-}"
+
+  # ─── Payments ───
+  STRIPE_SECRET_KEY: "${STRIPE_SECRET_KEY:-}"
+  STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET:-}"
+  PAYSTACK_SECRET_KEY: "${PAYSTACK_SECRET_KEY:-}"
+
+  # ─── Storage ───
+  S3_ENDPOINT: "${S3_ENDPOINT:-http://minio:9000}"
+  S3_ACCESS_KEY: "${S3_ACCESS_KEY:-minioadmin}"
+  S3_SECRET_KEY: "${S3_SECRET_KEY:-minioadmin}"
+  S3_BUCKET: "${S3_BUCKET:-anansi-media}"
+
+  # ─── Monitoring ───
+  SENTRY_DSN: "${SENTRY_DSN:-}"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}"
+
+  # ─── Frontend ───
+  NEXT_PUBLIC_API_URL: "${NEXT_PUBLIC_API_URL:-http://localhost:8000}"
+  NEXT_PUBLIC_WS_URL: "${NEXT_PUBLIC_WS_URL:-ws://localhost:8000}"
+  NEXT_PUBLIC_APP_URL: "${NEXT_PUBLIC_APP_URL:-http://localhost:3000}"
+
+  # ─── Search ───
+  MEILISEARCH_URL: "${MEILISEARCH_URL:-http://meilisearch:7700}"
+  MEILISEARCH_MASTER_KEY: "${MEILISEARCH_MASTER_KEY:-anansi_search_master_key}"
+
+services:
+  # ─── PostgreSQL 16 + pgvector ───
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: anansi
+      POSTGRES_USER: anansi
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-anansi_dev_pass}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../../services/backend/migrations/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U anansi -d anansi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ─── Neo4j 5 (Graph Database) ───
+  neo4j:
+    image: neo4j:5-community
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: "${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-anansi_graph_dev}"
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_memory_pagecache_size: 512M
+      NEO4J_dbms_memory_heap_initial__size: 512M
+      NEO4J_dbms_memory_heap_max__size: 1G
+    volumes:
+      - neo4jdata:/data
+      - neo4jlogs:/logs
+      - neo4jimport:/import
+    ports:
+      - "7474:7474"   # HTTP Browser
+      - "7687:7687"   # Bolt Protocol
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "${NEO4J_USER:-neo4j}", "-p", "${NEO4J_PASSWORD:-anansi_graph_dev}", "RETURN 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+
+  # ─── Redis 7 ───
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redisdata:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ─── Meilisearch (Full-text Search) ───
+  meilisearch:
+    image: getmeili/meilisearch:v1.12
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: ${MEILISEARCH_MASTER_KEY:-anansi_search_master_key}
+      MEILI_ENV: development
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - meilisearchdata:/meili_data
+    ports:
+      - "7700:7700"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ─── MinIO (S3-compatible Storage for Dev) ───
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-minioadmin}
+    volumes:
+      - miniodata:/data
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Console
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ─── API (FastAPI) ───
+  api:
+    build:
+      context: ../../services/backend
+      dockerfile: ../../infra/docker/Dockerfile.api.dev
+    restart: unless-stopped
+    volumes:
+      - ../../services/backend:/app
+    ports:
+      - "8000:8000"
+    environment:
+      <<: *env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+
+  # ─── Web (Next.js) ───
+  web:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile.web.dev
+    restart: unless-stopped
+    volumes:
+      - ../../services/frontend:/app/services/frontend
+      - ../../tsconfig.base.json:/app/tsconfig.base.json
+      - ../../package.json:/app/package.json
+    ports:
+      - "3000:3000"
+    environment:
+      <<: *env
+    depends_on:
+      - api
+
+  # ─── Worker (Celery) ───
+  worker:
+    build:
+      context: ../../services/backend
+      dockerfile: ../../infra/docker/Dockerfile.api.dev
+    restart: unless-stopped
+    command: celery -A app.tasks worker --loglevel=info --concurrency=2 --max-tasks-per-child=50 --time-limit=300 --soft-time-limit=180
+    volumes:
+      - ../../services/backend:/app
+      - ../../services/worker:/worker
+    environment:
+      <<: *env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ─── Flower (Celery Monitoring) ───
+  flower:
+    image: mher/flower:2.0
+    restart: unless-stopped
+    command: ["celery", "--broker=redis://redis:6379/0", "flower", "--port=5555"]
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - worker
+
+volumes:
+  pgdata:
+    driver: local
+  neo4jdata:
+    driver: local
+  neo4jlogs:
+    driver: local
+  neo4jimport:
+    driver: local
+  redisdata:
+    driver: local
+  meilisearchdata:
+    driver: local
+  miniodata:
+    driver: local

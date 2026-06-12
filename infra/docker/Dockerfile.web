@@ -1,0 +1,70 @@
+# ──────────────────────────────────────────────
+# Anansi Web — Production Dockerfile
+# Next.js 16 + Standalone Output
+# ──────────────────────────────────────────────
+
+# ─── Dependencies Stage ───
+
+FROM node:22-alpine AS deps
+
+WORKDIR /app
+
+RUN apk add --no-cache libc6-compat
+
+# Copy root workspace config
+COPY package.json package-lock.json* ./
+COPY services/frontend/package.json services/frontend/package-lock.json* ./services/frontend/
+
+RUN npm ci --omit=dev && npm cache clean --force
+
+# ─── Build Stage ───
+
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+COPY services/frontend/package.json services/frontend/package-lock.json* ./services/frontend/
+RUN npm ci
+
+COPY tsconfig.base.json ./
+COPY services/frontend/ ./services/frontend/
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV NEXT_PUBLIC_API_URL=https://api.anansi.ai
+
+RUN npm run build -w @anansi/web
+
+# ─── Runner Stage ───
+
+FROM node:22-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy standalone output — Next.js preserves workspace structure in .next/standalone
+COPY --from=builder /app/services/frontend/.next/standalone ./
+COPY --from=builder /app/services/frontend/.next/static ./services/frontend/.next/static
+COPY --from=builder /app/services/frontend/public ./services/frontend/public
+
+# Copy node_modules for standalone runtime
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json ./package.json
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
+
+CMD ["node", "services/frontend/server.js"]
