@@ -1,7 +1,17 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  // Turbopack path alias resolution — mirrors tsconfig paths
+  turbopack: {
+    resolveAlias: {
+      '@/*': './src/*',
+      '@anansi/ui/*': './src/components/ui/*',
+      '@anansi/lib/*': './src/lib/*',
+      '@anansi/hooks/*': './src/hooks/*',
+      '@anansi/stores/*': './src/stores/*',
+      '@anansi/types/*': './src/types/*',
+    },
+  },
 
   // Images
   images: {
