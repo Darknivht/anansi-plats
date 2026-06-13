@@ -10,7 +10,7 @@ WORKDIR /app
 RUN apk add --no-cache libc6-compat
 
 # Copy workspace root files
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json* tsconfig.base.json ./
 
 # Copy frontend source
 COPY services/frontend/ ./services/frontend/
