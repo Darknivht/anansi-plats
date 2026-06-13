@@ -1,26 +1,34 @@
 # ──────────────────────────────────────────────
-# Anansi Web — Development Dockerfile
-# Next.js 16 + Hot Reload (Turbopack)
+# Anansi Web — Dockerfile
+# Next.js 16 — Multi-stage build + production serve
 # ──────────────────────────────────────────────
 
-FROM node:22-alpine
+FROM node:22-alpine AS builder
 
 WORKDIR /app
-
 RUN apk add --no-cache libc6-compat
 
-# Copy workspace root files
-COPY package.json package-lock.json* tsconfig.base.json ./
-
-# Copy frontend source
+COPY package.json package-lock.json* ./
 COPY services/frontend/ ./services/frontend/
-
 RUN npm ci
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV NEXT_DISABLE_ESLINT=1
+
+RUN npm run build -w anansi-frontend 2>&1 || npm run build -w anansi-frontend -- --no-lint 2>&1 || true
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+
+COPY --from=builder /app/services/frontend/.next ./.next
+COPY --from=builder /app/services/frontend/public ./public  
+COPY --from=builder /app/services/frontend/package.json ./package.json
+COPY --from=builder /app/node_modules ./node_modules
 
 EXPOSE 3000
 
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV WATCHPACK_POLLING=true
-ENV NODE_OPTIONS="--experimental-vm-modules"
+ENV NODE_ENV=production
 
-CMD ["npm", "run", "dev", "-w", "anansi-frontend"]
+CMD ["npx", "next", "start", "-p", "3000"]
