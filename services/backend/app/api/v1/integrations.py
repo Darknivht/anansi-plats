@@ -246,7 +246,7 @@ async def list_webhooks(
 )
 async def receive_webhook(
     webhook_id: str = Path(...),
-    request: Request = None,
+    request: Request,
     svc: WebhookService = Depends(get_webhook_service),
 ):
     """Public endpoint for external services to send webhooks to.
